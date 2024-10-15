@@ -22,6 +22,7 @@ local function GetCurrentScreenName()
 end
 
 local function forwardActivityData()
+    ACTIVITY.nonce = math.random(0, 9999)
     local payload = GLOBAL.json.encode(ACTIVITY)
     -- interchangeable with Discord Game SDK, IPC pipe, websocket, or proxy server (IPC pipe failed: sandbox too restrictive)
     if not GLOBAL.TheSim then return end

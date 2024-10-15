@@ -17,4 +17,4 @@ It along with install instructions can be found [here](https://github.com/AxiomD
 
 ## Installation
 * The easiest way to install this mod is through the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3349132081). <br>
-* Or you can download the latest release from the [releases page](https://github.com/AxiomDev-Dont-Starve/DST-RPC-Mod/releases).
+* Or you can download the latest build by clicking the green `<> Code` button and hitting "Download ZIP."
