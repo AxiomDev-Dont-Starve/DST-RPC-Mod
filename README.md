@@ -3,7 +3,7 @@
 Tired of your games only having the basic Discord presence? <br>
 Show off what you're doing in Don't Starve Together with full Rich Presence integration!
 
-NOTE: Currently, an external proxy program is also required to make the connection to Discord. <br>
+**NOTE:** Currently, an external proxy program is also required to make the connection to Discord. <br>
 It along with install instructions can be found [here](https://github.com/AxiomDev-Dont-Starve/DST-RPC-Proxy).
 
 ## Features
@@ -16,5 +16,5 @@ It along with install instructions can be found [here](https://github.com/AxiomD
 - Whether you're a ghost or not
 
 ## Installation
-* The easiest way to install this mod is through the [Steam Workshop](https://steamcommunity.com/). <br>
+* The easiest way to install this mod is through the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3349132081). <br>
 * Or you can download the latest release from the [releases page](https://github.com/AxiomDev-Dont-Starve/DST-RPC-Mod/releases).

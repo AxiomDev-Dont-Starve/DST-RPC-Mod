@@ -2,7 +2,7 @@ print("Hello from the DST-Discord RPC Mod!")
 
 local ACTIVITY = {
     largeImageKey = 'large-image',
-    largeImageText = 'DST RPC by FullMetalFuzzball',
+    largeImageText = 'DST-RPC-Mod on GitHub',
     details = 'Loading...'
 }
 
@@ -75,7 +75,7 @@ GLOBAL.scheduler:ExecutePeriodic(1, function()
     elseif screen == "WardrobeScreen"        then updateMenuData("Customizing a character's looks")
     elseif screen == "CompendiumScreen"      then updateMenuData("In the Compendium")
     elseif screen == "CollectionScreen"      then updateMenuData("In the Curio Cabinet")
-    elseif screen == "PlayerSummaryScreen"   then updateMenuData("Browsing their Item Collection")
+    elseif screen == "PlayerSummaryScreen"   then updateMenuData("Browsing the Item Collection")
     elseif screen == "PurchasePackScreen"    then updateMenuData("Browsing the Shop")
     elseif screen == "ModsScreen"            then updateMenuData("Managing Mods")
     elseif screen == "CreditsScreen"         then updateMenuData("Watching the Credits")
