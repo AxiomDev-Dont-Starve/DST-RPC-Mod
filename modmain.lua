@@ -29,6 +29,18 @@ local function forwardActivityData()
     GLOBAL.TheSim:QueryServer("http://localhost:4747/update", function() end, "POST", payload) --post to custom proxy server
 end
 
+local function checkServerGameMode()
+    local gameMode = GLOBAL.TheNet:GetServerGameMode()
+    if gameMode == "lavaarena" then
+        ACTIVITY.state = "Playing The Forge"
+        ACTIVITY.smallImageText = "ReForged Mod"
+        ACTIVITY.smallImageKey = "forge"
+    elseif gameMode == "quagmire" then
+        ACTIVITY.state = "Playing The Gorge"
+        ACTIVITY.smallImageText = "Re-Gorge-itated Mod"
+        ACTIVITY.smallImageKey = "gorge"
+    end
+end
 
 local function updateWorldData()
     if not GLOBAL.TheWorld then return end
@@ -40,6 +52,7 @@ local function updateWorldData()
     local caveDayPhase = GLOBAL.TheWorld.state.iscavenight and "Night" or GLOBAL.TheWorld.state.iscavedusk and "Dusk" or "Day"
     local day = GLOBAL.TheWorld.state.cycles + 1
     ACTIVITY.state =  "Cycle " .. day .. " in " .. capfirst(season) .. " - " .. (isInCaves and caveDayPhase or dayPhase)
+    checkServerGameMode()
 end
 
 local function updatePlayerData()

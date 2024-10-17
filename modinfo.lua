@@ -2,7 +2,7 @@
 name = "DST-Discord RPC Mod"
 description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required."
 author = "ArmoredFuzzball"
-version = "v0.1.0"
+version = "v0.2.0"
 
 -- PLEASE NOTE: This version of the rich presence mod uses the [Nodejs] proxy server!
 -- It can be found here: https://github.com/AxiomDev-Dont-Starve/DST-RPC-Proxy
