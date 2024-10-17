@@ -10,6 +10,7 @@ It along with install instructions can be found [here](https://github.com/AxiomD
 - Displays the current day and season
 - The current day phase
 - The current dimension (overworld, caves)
+- Current gamemode (Vanilla, Forge, and Gorge)
 - The player's character name
 - What screen you're on (main menu, compendium, etc.)
 - The server's player count / max player count
