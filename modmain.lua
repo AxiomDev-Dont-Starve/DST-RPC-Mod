@@ -18,15 +18,12 @@ end
 
 local function GetCurrentScreenName()
     local activeScreen = GLOBAL.TheFrontEnd:GetActiveScreen()
-    return activeScreen and activeScreen.name or nil
+    return activeScreen and activeScreen.name or "none"
 end
 
 local function forwardActivityData()
-    ACTIVITY.nonce = math.random(0, 9999)
     local payload = GLOBAL.json.encode(ACTIVITY)
-    -- interchangeable with Discord Game SDK, IPC pipe, websocket, or proxy server (IPC pipe failed: sandbox too restrictive)
-    if not GLOBAL.TheSim then return end
-    GLOBAL.TheSim:QueryServer("http://localhost:4747/update", function() end, "POST", payload) --post to custom proxy server
+    GLOBAL.TheSim:QueryServer("http://localhost:4747/update", function() end, "POST", payload)
 end
 
 local function checkServerGameMode()
@@ -35,28 +32,34 @@ local function checkServerGameMode()
         ACTIVITY.state = "Playing The Forge"
         ACTIVITY.smallImageText = "ReForged Mod"
         ACTIVITY.smallImageKey = "forge"
+        return true
     elseif gameMode == "quagmire" then
         ACTIVITY.state = "Playing The Gorge"
         ACTIVITY.smallImageText = "Re-Gorge-itated Mod"
         ACTIVITY.smallImageKey = "gorge"
+        return true
     end
+    return false
 end
 
 local function updateWorldData()
-    if not GLOBAL.TheWorld then return end
-    local isInCaves = GLOBAL.TheWorld:HasTag("cave")
-    ACTIVITY.smallImageKey = isInCaves and "caves" or "surface"
-    ACTIVITY.smallImageText = isInCaves and "In the Caves" or "On the Surface"
-    local season = GLOBAL.TheWorld.state.season
-    local dayPhase = GLOBAL.TheWorld.state.isnight and "Night" or GLOBAL.TheWorld.state.isdusk and "Dusk" or "Day"
-    local caveDayPhase = GLOBAL.TheWorld.state.iscavenight and "Night" or GLOBAL.TheWorld.state.iscavedusk and "Dusk" or "Day"
+    if checkServerGameMode() then return end
+    local season = capfirst(GLOBAL.TheWorld.state.season)
     local day = GLOBAL.TheWorld.state.cycles + 1
-    ACTIVITY.state =  "Cycle " .. day .. " in " .. capfirst(season) .. " - " .. (isInCaves and caveDayPhase or dayPhase)
-    checkServerGameMode()
+    local phase = ""
+    if (GLOBAL.TheWorld:HasTag("cave")) then
+        ACTIVITY.smallImageKey = "caves"
+        ACTIVITY.smallImageText = "In the Caves"
+        phase = GLOBAL.TheWorld.state.iscavenight and "Night" or GLOBAL.TheWorld.state.iscavedusk and "Dusk" or "Day"
+    else
+        ACTIVITY.smallImageKey = "surface"
+        ACTIVITY.smallImageText = "On the Surface"
+        phase = GLOBAL.TheWorld.state.isnight and "Night" or GLOBAL.TheWorld.state.isdusk and "Dusk" or "Day"
+    end
+    ACTIVITY.state =  "Cycle " .. day .. " in " .. season .. " - " .. phase
 end
 
 local function updatePlayerData()
-    if not GLOBAL.ThePlayer then return end
     local playerCount = tablelength(GLOBAL.TheNet:GetClientTable())
     local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
     local isGhost = GLOBAL.ThePlayer:HasTag("playerghost")
@@ -75,28 +78,39 @@ AddClassPostConstruct("screens/redux/lobbyscreen", function()
     local playerCount = tablelength(GLOBAL.TheNet:GetClientTable())
     local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
     updateMenuData("Selecting a character (" .. playerCount .. " of " .. maxPlayers .. ")", true)
-    forwardActivityData()
+    if GLOBAL.TheSim then forwardActivityData() end
 end)
 
-GLOBAL.scheduler:ExecutePeriodic(1, function()
-    updateWorldData()
-    updatePlayerData()
+local SCREENS = {
+    MultiplayerMainScreen  = "At the Main Menu",
+    ServerListingScreen    = "Browsing Games",
+    ServerCreationScreen   = "Creating a Game",
+    WardrobeScreen         = "Customizing a character's looks",
+    CompendiumScreen       = "In the Compendium",
+    CollectionScreen       = "In the Curio Cabinet",
+    PlayerSummaryScreen    = "Browsing the Item Collection",
+    PurchasePackScreen     = "Browsing the Shop",
+    ModsScreen             = "Managing Mods",
+    ModConfigurationScreen = "Configuring a Mod",
+    CreditsScreen          = "Watching the Credits",
+    OptionsScreen          = "Changing Options",
+    CharacterBioScreen     = "Reading a character's biography",
+    ServerSlotScreen       = "Browsing Save Games",
+    MysteryBoxScreen       = "At the Treasury",
+    TradeScreen            = "At the Trade Inn",
+    WorldGenScreen         = "Generating a World",
+    ThankYouPopup          = "Opening a Gift",
+    RedeemDialog           = "Entering a Code",
+    ItemBoxPreviewer       = "Viewing a Treasure Chest",
+    ItemBoxOpenerPopup     = "Opening a Treasure Chest",
+}
+
+GLOBAL.scheduler:ExecutePeriodic(0.25, function()
+    if GLOBAL.TheWorld then
+        updateWorldData()
+        if GLOBAL.ThePlayer then updatePlayerData() end
+    end
     local screen = GetCurrentScreenName()
-    if not screen then forwardActivityData() return end -- optimization
-    if     screen == "MultiplayerMainScreen" then updateMenuData("At the Main Menu")
-    elseif screen == "ServerListingScreen"   then updateMenuData("Browsing Games")
-    elseif screen == "ServerCreationScreen"  then updateMenuData("Creating a Game")
-    elseif screen == "WardrobeScreen"        then updateMenuData("Customizing a character's looks")
-    elseif screen == "CompendiumScreen"      then updateMenuData("In the Compendium")
-    elseif screen == "CollectionScreen"      then updateMenuData("In the Curio Cabinet")
-    elseif screen == "PlayerSummaryScreen"   then updateMenuData("Browsing the Item Collection")
-    elseif screen == "PurchasePackScreen"    then updateMenuData("Browsing the Shop")
-    elseif screen == "ModsScreen"            then updateMenuData("Managing Mods")
-    elseif screen == "CreditsScreen"         then updateMenuData("Watching the Credits")
-    elseif screen == "OptionsScreen"         then updateMenuData("Changing Options")
-    elseif screen == "CharacterBioScreen"    then updateMenuData("Reading a character's biography")
-    elseif screen == "ServerSlotScreen"      then updateMenuData("Browsing Save Games")
-    elseif screen == "MysteryBoxScreen"      then updateMenuData("At the Treasury")
-    elseif screen == "TradeScreen"           then updateMenuData("At the Trade Inn") end
-    forwardActivityData()
-end, nil, nil, "DSTD")
+    if SCREENS[screen] then updateMenuData(SCREENS[screen]) end
+    if GLOBAL.TheSim then forwardActivityData() end
+end, nil, nil, "DSTRPC")
