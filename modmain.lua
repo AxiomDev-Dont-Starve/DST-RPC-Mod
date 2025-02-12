@@ -60,7 +60,9 @@ local function updateWorldData()
 end
 
 local function updatePlayerData()
-    local playerCount = tablelength(GLOBAL.TheNet:GetClientTable())
+    local clientTable = GLOBAL.TheNet:GetClientTable()
+    if clientTable == nil then return end
+    local playerCount = tablelength(clientTable)
     local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
     local isGhost = GLOBAL.ThePlayer:HasTag("playerghost")
     ACTIVITY.details = "Playing as " .. capfirst(GLOBAL.ThePlayer.prefab) .. (isGhost and " [Ghost]" or "")  .. " (" .. playerCount .. " of " .. maxPlayers .. ")"
