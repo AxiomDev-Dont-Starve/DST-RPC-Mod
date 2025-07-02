@@ -1,6 +1,6 @@
 -- This information tells other players more about the mod
 name = "DST-Discord RPC Mod"
-description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required."
+description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required.\n\nCurrent proxy version: v2.0.0"
 author = "ArmoredFuzzball"
 version = "v0.3.2"
 
