@@ -22,7 +22,7 @@ local function GetCurrentScreenName()
 end
 
 local function forwardActivityData()
-    local payload = GLOBAL.json.encode(ACTIVITY)
+    local payload = GLOBAL.json.encode_compliant(ACTIVITY)
     GLOBAL.TheSim:QueryServer("http://localhost:4747/update", function() end, "POST", payload)
 end
 
@@ -96,7 +96,7 @@ local SCREENS = {
     ModConfigurationScreen = "Configuring a Mod",
     CreditsScreen          = "Watching the Credits",
     OptionsScreen          = "Changing Options",
-    CharacterBioScreen     = "Reading a character's biography",
+    CharacterBioScreen     = "Reading a character's Biography",
     ServerSlotScreen       = "Browsing Save Games",
     MysteryBoxScreen       = "At the Treasury",
     TradeScreen            = "At the Trade Inn",
@@ -107,7 +107,7 @@ local SCREENS = {
     ItemBoxOpenerPopup     = "Opening a Treasure Chest",
 }
 
-GLOBAL.scheduler:ExecutePeriodic(0.25, function()
+GLOBAL.scheduler:ExecutePeriodic(0.4, function()
     if GLOBAL.TheWorld then
         updateWorldData()
         if GLOBAL.ThePlayer then updatePlayerData() end
