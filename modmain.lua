@@ -1,4 +1,4 @@
-print("Hello from the DST-Discord RPC Mod!")
+print("Hello from the Discord Rich Presence Mod!")
 
 local ACTIVITY = {
     largeImageKey = 'large-image',
@@ -25,6 +25,16 @@ local function forwardActivityData()
     local payload = GLOBAL.json.encode_compliant(ACTIVITY)
     GLOBAL.TheSim:QueryServer("http://localhost:4747/update", function() end, "POST", payload)
 end
+
+local currentProxyVersion = "Unknown"
+GLOBAL.TheSim:QueryServer("http://localhost:4747/version/current", function(response, ok, code)
+    if ok and code == 200 then currentProxyVersion = response end
+end, "GET")
+
+local latestProxyVersion = ">=v2.2.0"
+GLOBAL.TheSim:QueryServer("http://localhost:4747/version/latest", function(response, ok, code)
+    if ok and code == 200 then latestProxyVersion = response end
+end, "GET")
 
 local function checkServerGameMode()
     local gameMode = GLOBAL.TheNet:GetServerGameMode()
@@ -83,6 +93,33 @@ AddClassPostConstruct("screens/redux/lobbyscreen", function()
     if GLOBAL.TheSim then forwardActivityData() end
 end)
 
+function CreateProxyUpdatePopup()
+	local function onClose() GLOBAL.TheFrontEnd:PopScreen() end
+    local function onGitHub()
+        local url = "https://github.com/AxiomDev-Dont-Starve/DST-RPC-Proxy/releases/latest"
+        GLOBAL.VisitURL(url)
+        GLOBAL.TheFrontEnd:PopScreen()
+    end
+
+    local PopupDialogScreen = GLOBAL.require("screens/redux/popupdialog")
+    GLOBAL.TheFrontEnd:PushScreen(PopupDialogScreen(
+        "Discord Rich Presence Proxy Update",
+        "Current Proxy Version: " .. currentProxyVersion ..
+        "\nLatest Proxy Version: " .. latestProxyVersion ..
+        "\nThis alert can be disabled in the mod config.",
+        {
+            { text = "Visit GitHub", cb = onGitHub },
+            { text = "Close", cb = onClose }
+	    }
+    ))
+end
+
+AddClassPostConstruct("screens/redux/multiplayermainscreen", function()
+    if currentProxyVersion == latestProxyVersion then return end
+    if not GetModConfigData("show_update_alert") then return end
+    GLOBAL.scheduler:ExecuteInTime(0.6, CreateProxyUpdatePopup, "DSTRPC-Popup")
+end)
+
 local SCREENS = {
     MultiplayerMainScreen  = "At the Main Menu",
     ServerListingScreen    = "Browsing Games",
@@ -108,11 +145,12 @@ local SCREENS = {
 }
 
 GLOBAL.scheduler:ExecutePeriodic(0.4, function()
+    if not GLOBAL.TheSim then return end
     if GLOBAL.TheWorld then
         updateWorldData()
         if GLOBAL.ThePlayer then updatePlayerData() end
     end
     local screen = GetCurrentScreenName()
     if SCREENS[screen] then updateMenuData(SCREENS[screen]) end
-    if GLOBAL.TheSim then forwardActivityData() end
-end, nil, nil, "DSTRPC")
+    forwardActivityData()
+end, nil, nil, "DSTRPC-Loop")

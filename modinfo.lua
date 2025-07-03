@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
-name = "DST-Discord RPC Mod"
-description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required.\n\nLatest proxy version: v2.1.0"
+name = "Discord Rich Presence"
+description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required.\n\nPresence configuration coming soon!"
 author = "ArmoredFuzzball"
-version = "v0.3.2a"
+version = "v0.4.0"
 
 -- PLEASE NOTE: This version of the rich presence mod uses the [Nodejs] proxy server!
 -- It can be found here: https://github.com/AxiomDev-Dont-Starve/DST-RPC-Proxy
@@ -34,3 +34,16 @@ dst_compatible = true
 
 --These tags allow the server running this mod to be found with filters from the server listing screen
 -- server_filter_tags = {"discord rpc"}
+
+configuration_options = {
+    {
+        name = "show_update_alert",
+        label = "Proxy Update Alerts",
+        options =   {
+                        {description = "Show", data = true},
+                        {description = "Hide", data = false}
+                    },
+        default = true,
+        hover = "Show or hide the alert for proxy server updates in the main menu.",
+    }
+}
