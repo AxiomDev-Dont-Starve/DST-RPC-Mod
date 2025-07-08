@@ -1,10 +1,12 @@
 print("Hello from the Discord Rich Presence Mod!")
 
-local ACTIVITY = {
-    largeImageKey = 'large-image',
-    largeImageText = 'DST-RPC-Mod on GitHub',
-    details = 'Loading...'
-}
+local ACTIVITY = {}
+
+local CONFIG_SHOW_UPDATE_ALERT    = GetModConfigData("show_update_alert")
+local CONFIG_FORWARDING_FREQUENCY = GetModConfigData("forwarding_frequency")
+local CONFIG_FORWARD_MENU_DATA    = GetModConfigData("forward_menu_data")
+local CONFIG_FORWARD_PLAYER_DATA  = GetModConfigData("forward_player_data")
+local CONFIG_FORWARD_WORLD_DATA   = GetModConfigData("forward_world_data")
 
 local function tablelength(T)
     local count = 0
@@ -54,8 +56,8 @@ end
 
 local function updateWorldData()
     if checkServerGameMode() then return end
-    local season = capfirst(GLOBAL.TheWorld.state.season)
     local day = GLOBAL.TheWorld.state.cycles + 1
+    local season = capfirst(GLOBAL.TheWorld.state.season)
     local phase = ""
     if (GLOBAL.TheWorld:HasTag("cave")) then
         ACTIVITY.smallImageKey = "caves"
@@ -72,25 +74,23 @@ end
 local function updatePlayerData()
     local clientTable = GLOBAL.TheNet:GetClientTable()
     if clientTable == nil then return end
+    local isGhost = GLOBAL.ThePlayer:HasTag("playerghost")
     local playerCount = tablelength(clientTable)
     local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
-    local isGhost = GLOBAL.ThePlayer:HasTag("playerghost")
     ACTIVITY.details = "Playing as " .. capfirst(GLOBAL.ThePlayer.prefab) .. (isGhost and " [Ghost]" or "")  .. " (" .. playerCount .. " of " .. maxPlayers .. ")"
-end
-
-local function updateMenuData(string, saveState)
-    if not saveState then ACTIVITY.state = "" end
-    ACTIVITY.details = string
-    ACTIVITY.smallImageKey = ""
-    ACTIVITY.smallImageText = ""
 end
 
 -- LobbyScreen cannot be detected like other screens
 AddClassPostConstruct("screens/redux/lobbyscreen", function()
-    local playerCount = tablelength(GLOBAL.TheNet:GetClientTable())
-    local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
-    updateMenuData("Selecting a character (" .. playerCount .. " of " .. maxPlayers .. ")", true)
-    if GLOBAL.TheSim then forwardActivityData() end
+    if not GLOBAL.TheSim then return end
+    ACTIVITY.smallImageKey = ''
+    ACTIVITY.smallImageText = ''
+    if CONFIG_FORWARD_PLAYER_DATA then
+        local playerCount = tablelength(GLOBAL.TheNet:GetClientTable())
+        local maxPlayers = GLOBAL.TheNet:GetServerMaxPlayers()
+        ACTIVITY.details = "Selecting a character (" .. playerCount .. " of " .. maxPlayers .. ")"
+    end
+    forwardActivityData()
 end)
 
 function CreateProxyUpdatePopup()
@@ -116,7 +116,7 @@ end
 
 AddClassPostConstruct("screens/redux/multiplayermainscreen", function()
     if currentProxyVersion == latestProxyVersion then return end
-    if not GetModConfigData("show_update_alert") then return end
+    if not CONFIG_SHOW_UPDATE_ALERT then return end
     GLOBAL.scheduler:ExecuteInTime(0.6, CreateProxyUpdatePopup, "DSTRPC-Popup")
 end)
 
@@ -144,13 +144,27 @@ local SCREENS = {
     ItemBoxOpenerPopup     = "Opening a Treasure Chest",
 }
 
-GLOBAL.scheduler:ExecutePeriodic(0.4, function()
+local skipLoop = CONFIG_FORWARDING_FREQUENCY < 0.3
+local function main()
     if not GLOBAL.TheSim then return end
-    if GLOBAL.TheWorld then
-        updateWorldData()
-        if GLOBAL.ThePlayer then updatePlayerData() end
+    if skipLoop then skipLoop = false return end
+    -- reset state
+    ACTIVITY.smallImageKey = ''
+    ACTIVITY.smallImageText = ''
+    ACTIVITY.details = 'Loading...'
+    ACTIVITY.state = ''
+    -- set menu data
+    if CONFIG_FORWARD_MENU_DATA then
+        local screen = GetCurrentScreenName()
+        if SCREENS[screen] then ACTIVITY.details = SCREENS[screen] end
     end
-    local screen = GetCurrentScreenName()
-    if SCREENS[screen] then updateMenuData(SCREENS[screen]) end
+    -- set world data
+    if GLOBAL.TheWorld then
+        if CONFIG_FORWARD_WORLD_DATA then updateWorldData() end
+        -- set player data
+        if CONFIG_FORWARD_PLAYER_DATA and GLOBAL.ThePlayer then updatePlayerData() end
+    end
     forwardActivityData()
-end, nil, nil, "DSTRPC-Loop")
+end
+
+GLOBAL.scheduler:ExecutePeriodic(CONFIG_FORWARDING_FREQUENCY, main, nil, nil, "DSTRPC-Loop")

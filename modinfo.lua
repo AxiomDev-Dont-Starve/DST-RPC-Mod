@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
 name = "Discord Rich Presence"
-description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required.\n\nPresence configuration coming soon!"
+description = "Show off what you're doing in-game with Discord Rich Presence!\nExternal proxy program required.\n\nDetailed presence configuration coming soon!"
 author = "ArmoredFuzzball"
-version = "v0.4.0"
+version = "v0.5.0"
 
 -- PLEASE NOTE: This version of the rich presence mod uses the [Nodejs] proxy server!
 -- It can be found here: https://github.com/AxiomDev-Dont-Starve/DST-RPC-Proxy
@@ -39,11 +39,60 @@ configuration_options = {
     {
         name = "show_update_alert",
         label = "Proxy Update Alerts",
-        options =   {
-                        {description = "Show", data = true},
-                        {description = "Hide", data = false}
-                    },
+        options = {
+            {description = "Show", data = true},
+            {description = "Hide", data = false}
+        },
         default = true,
         hover = "Show or hide the alert for proxy server updates in the main menu.",
+    },
+    {
+        name = "forwarding_frequency",
+        label = "Forwarding Frequency",
+        options = {
+            {description = "0.1s", data = 0.1},
+            {description = "0.2s", data = 0.2},
+            {description = "0.3s", data = 0.3},
+            {description = "0.4s", data = 0.4},
+            {description = "0.5s", data = 0.5},
+            {description = "0.6s", data = 0.6},
+            {description = "0.7s", data = 0.7},
+            {description = "0.8s", data = 0.8},
+            {description = "0.9s", data = 0.9},
+            {description = "1.0s", data = 1},
+            {description = "1.5s", data = 1.5},
+        },
+        default = 0.4,
+        hover = "Changes how often the mod forwards data to the proxy server.\nMore frequent updates increase CPU usage.",
+    },
+    {
+        name = "forward_menu_data",
+        label = "Forward Menu Data",
+        options = {
+            {description = "Yes", data = true},
+            {description = "No", data = false}
+        },
+        default = true,
+        hover = "Forward menu data to Discord.\nThis includes what menu screens you're viewing.",
+    },
+    {
+        name = "forward_player_data",
+        label = "Forward Player Data",
+        options = {
+            {description = "Yes", data = true},
+            {description = "No", data = false}
+        },
+        default = true,
+        hover = "Forward player data to Discord.\nThis includes playercount, character name, and ghost status.",
+    },
+    {
+        name = "forward_world_data",
+        label = "Forward World Data",
+        options = {
+            {description = "Yes", data = true},
+            {description = "No", data = false}
+        },
+        default = true,
+        hover = "Forward world data to Discord.\nThis includes your dimension, day phase, and server game mode.",
     }
 }
